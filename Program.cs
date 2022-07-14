@@ -6,21 +6,21 @@ var app = builder.Build();
 app.MapGet("/", () => "Hellooww!");
 app.MapPost("/user", () => new { name = "Franchescolle Dadalto", idade = 34 });
 
-app.MapPost("/saveproduct", (Product product) =>
+app.MapPost("/product", (Product product) =>
 {
     ProductRepository.Add(product);
 });
 
 // Informações via query params
 //api.app.com/getproduct?datastart={date}&dataend={date}
-app.MapGet("/getproduct", ([FromQuery] string dateStart, [FromQuery] string dateEnd) =>
-{
-    return dateStart + " - " + dateEnd;
-});
+// app.MapGet("/getproduct", ([FromQuery] string dateStart, [FromQuery] string dateEnd) =>
+// {
+//     return dateStart + " - " + dateEnd;
+// });
 
 // Informações via rota
 //api.app.com/getproduct/{code}
-app.MapGet("/getproduct/{code}", ([FromRoute] string code) =>
+app.MapGet("/product/{code}", ([FromRoute] string code) =>
 {
     var product = ProductRepository.getBy(code);
     return product;
@@ -31,13 +31,13 @@ app.MapGet("/getallproducts/", () =>
     return ProductRepository.Products;    
 });
 
-app.MapPut("/editproduct", (Product product) =>
+app.MapPut("/product", (Product product) =>
 {
     var productSaved = ProductRepository.getBy(product.Code);
     productSaved.Name = product.Name;
 });
 
-app.MapDelete("/deleteproduct/{code}", ([FromRoute] string code) =>
+app.MapDelete("/product/{code}", ([FromRoute] string code) =>
 {
     var productSaved = ProductRepository.getBy(code);
     ProductRepository.Remove(productSaved);
