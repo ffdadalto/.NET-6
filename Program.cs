@@ -9,6 +9,7 @@ app.MapPost("/user", () => new { name = "Franchescolle Dadalto", idade = 34 });
 app.MapPost("/product", (Product product) =>
 {
     ProductRepository.Add(product);
+    return Results.Created($"/products/{product.Code}", product);
 });
 
 // Informações via query params
@@ -23,24 +24,28 @@ app.MapPost("/product", (Product product) =>
 app.MapGet("/product/{code}", ([FromRoute] string code) =>
 {
     var product = ProductRepository.getBy(code);
-    return product;
+    if (product != null)
+        return Results.Ok(product);
+    return Results.NotFound();
 });
 
 app.MapGet("/getallproducts/", () =>
 {
-    return ProductRepository.Products;    
+    return Results.Ok(ProductRepository.Products);
 });
 
 app.MapPut("/product", (Product product) =>
 {
     var productSaved = ProductRepository.getBy(product.Code);
     productSaved.Name = product.Name;
+    return Results.Ok();
 });
 
 app.MapDelete("/product/{code}", ([FromRoute] string code) =>
 {
     var productSaved = ProductRepository.getBy(code);
     ProductRepository.Remove(productSaved);
+    return Results.Ok();
 });
 
 app.Run();
