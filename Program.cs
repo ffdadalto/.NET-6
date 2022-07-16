@@ -4,13 +4,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSqlServer<ApplicationDbContext>(builder.Configuration["Database:SqlServer"]);
 var app = builder.Build();
 
-app.MapGet("/", () => "Hellooww!");
-app.MapPost("/user", () => new { name = "Franchescolle Dadalto", idade = 34 });
-
-app.MapPost("/product", (Product product) =>
+app.MapPost("/product", (ProductRequest productRequest, ApplicationDbContext context) =>
 {
-    ProductRepository.Add(product);
-    return Results.Created($"/products/{product.Code}", product);
+    var category = context.Category.Where(c => c.Id == productRequest.CategoryId).First();
+
+    var product = new Product
+    {
+        Code = productRequest.Code,
+        Name = productRequest.Name,
+        Description = productRequest.Description,
+        Category = category
+    };
+
+    if (productRequest.Tags != null)
+    {
+        product.Tags = new List<Tag>();
+        foreach (var tagName in productRequest.Tags)
+            product.Tags.Add(new Tag { Name = tagName });
+    }
+
+    context.Products.Add(product);
+    context.SaveChanges();
+
+    return Results.Created($"product/{product.Id} ", product);
 });
 
 // Informações via query params
